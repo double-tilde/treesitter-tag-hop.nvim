@@ -4,7 +4,7 @@ A lightweight Neovim plugin that lets you jump between matching HTML tags or nav
 
 ## Features
 
-- Jump between matching HTML tags (<div> ⇄ </div>)
+- Jump between matching HTML tags (`<div> ⇄ </div>`)
 - Navigate up and down tags at the same indentation level
 - Powered by nvim-treesitter
 
