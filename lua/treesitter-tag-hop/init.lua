@@ -1,3 +1,5 @@
+--- Tag jumping utility for HTML files using Tree-sitter.
+-- Allows jumping between matching or indented HTML tags.
 local ts_utils = require("nvim-treesitter.ts_utils")
 
 local config = {
@@ -7,7 +9,8 @@ local config = {
 
 local M = {}
 
--- Get the tag where the cursor is
+--- Retrieves the tag node (start or end) at the current cursor position.
+-- @return TSNode|nil The current tag node under the cursor, or nil if not found.
 local function get_tag()
   local node = ts_utils.get_node_at_cursor()
 
@@ -20,7 +23,9 @@ local function get_tag()
   end
 end
 
--- Get matching tag node
+--- Finds the matching tag node for a given start or end tag.
+-- @param node TSNode The tag node (start_tag or end_tag).
+-- @return TSNode|nil The matching tag node, or nil if not found.
 local function get_matching_tag_node(node)
   local parent = node:parent()
   if not parent then
@@ -42,7 +47,8 @@ local function get_matching_tag_node(node)
   end
 end
 
--- Move cursor to a tag node
+--- Moves the cursor to the given tag node.
+-- @param tag_node TSNode The node to move the cursor to.
 local function goto_tag(tag_node)
   if not tag_node then
     return
@@ -51,16 +57,18 @@ local function goto_tag(tag_node)
   vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
 end
 
--- Go to a matching node
+--- Jumps the cursor to the matching tag node (start or end).
+-- @param node TSNode The current tag node.
 local function goto_matching(node)
   local match = get_matching_tag_node(node)
   goto_tag(match)
 end
 
--- Go to the same indentation tag if not looking for a matching node
+--- Moves the cursor to the next or previous tag node with the same indentation.
+-- Useful for navigating structurally similar tags.
+-- @param node TSNode The current tag node.
 local function goto_indented(node)
   local node_type = node:type()
-  -- Move backwards if we are on a start tag, or forwards on an end tag
   local direction = node_type == "start_tag" and -1 or 1
   local _, start_col = node:start()
 
@@ -90,6 +98,8 @@ local function goto_indented(node)
   end
 end
 
+--- Jumps the cursor to a matching or indented tag based on direction.
+-- @param dir string Direction to jump: `"next"` or `"prev"`.
 function M.jump_tag(dir)
   local ft = vim.bo.filetype
   if not vim.tbl_contains(config.filetypes, ft) then
@@ -112,6 +122,8 @@ function M.jump_tag(dir)
   end
 end
 
+--- Sets up the module with user-defined configuration.
+-- @param user_config table Optional table to override default config.
 function M.setup(user_config)
   config = vim.tbl_deep_extend("force", config, user_config or {})
 end
