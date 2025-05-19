@@ -55,8 +55,8 @@ require("treesitter-tag-hop").setup()
 Create keymaps to jump forward or backward between tags:
 
 ```lua
-vim.keymap.set("n", "]t", function() require("treesitter-tag-hop").jump_tag("next") end, { desc = "Jump to next tag" })
-vim.keymap.set("n", "[t", function() require("treesitter-tag-hop").jump_tag("prev") end, { desc = "Jump to previous tag" })
+vim.keymap.set({ "n", "v" }, "]t", function() require("treesitter-tag-hop").jump_tag("next") end, { desc = "Jump to next tag" })
+vim.keymap.set({ "n", "v" }, "[t", function() require("treesitter-tag-hop").jump_tag("prev") end, { desc = "Jump to previous tag" })
 ```
 
 ### Behavior:
