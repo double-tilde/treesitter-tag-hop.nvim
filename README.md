@@ -17,7 +17,7 @@ A lightweight Neovim plugin that lets you jump between matching HTML tags or nav
   "double-tilde/treesitter-tag-hop.nvim",
   config = function()
     require("treesitter-tag-hop").setup({
-      filetypes = { "html" }, -- customize supported filetypes
+      filetypes = { "html", "php" }, -- customize supported filetypes
       show_messages = false, -- toggle debug messages
     })
   end
@@ -31,7 +31,7 @@ use({
   "double-tilde/treesitter-tag-hop.nvim",
   config = function()
     require("treesitter-tag-hop").setup({
-      filetypes = { "html" },
+      filetypes = { "html", "php" },
       show_messages = false,
     })
   end
@@ -61,14 +61,12 @@ vim.keymap.set({ "n", "v" }, "[t", function() require("treesitter-tag-hop").jump
 
 ### Behavior:
 
-
-| Current Tag Type | Direction | Action                   |
-|------------------|-----------|--------------------------|
-| `<start_tag>`    | next      | Jump to `</end_tag>`     |
-| `<start_tag>`    | prev      | Jump to indented up      |
-| `</end_tag>`     | prev      | Jump to `<start_tag>`    |
-| `</end_tag>`     | next      | Jump to indented down    |
-
+| Current Tag Type | Direction | Action                |
+| ---------------- | --------- | --------------------- |
+| `<start_tag>`    | next      | Jump to `</end_tag>`  |
+| `<start_tag>`    | prev      | Jump to indented up   |
+| `</end_tag>`     | prev      | Jump to `<start_tag>` |
+| `</end_tag>`     | next      | Jump to indented down |
 
 ### Default Configuration
 
