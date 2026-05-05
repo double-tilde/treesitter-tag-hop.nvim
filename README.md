@@ -2,6 +2,8 @@
 
 A lightweight Neovim plugin that lets you jump between matching HTML tags or navigate tag blocks at the same indentation level, powered by Tree-sitter.
 
+> Release 1.0.0 supports Neovim 0.8.0 to 0.11.7
+
 ## Features
 
 - Jump between matching HTML tags (`<div> ⇄ </div>`)
@@ -79,7 +81,7 @@ require("treesitter-tag-hop").setup({
 
 #### Requirements
 
-- Neovim 0.8+
+- Neovim 0.8 to 0.11.7
 - nvim-treesitter properly installed and configured
 - Tree-sitter parser for html installed (:TSInstall html)
 
