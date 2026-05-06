@@ -82,7 +82,7 @@ require("treesitter-tag-hop").setup({
 
 #### Requirements
 
-- Neovim 0.8 to 0.11.7
+- Neovim 0.8 to 0.11.7 (use the following tag: `tag = "v1.0.0"`
 - nvim-treesitter properly installed and configured
 - Tree-sitter parser for html installed (:TSInstall html)
 
