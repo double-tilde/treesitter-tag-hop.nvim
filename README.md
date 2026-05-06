@@ -2,6 +2,7 @@
 
 A lightweight Neovim plugin that lets you jump between matching HTML tags or navigate tag blocks at the same indentation level, powered by Tree-sitter.
 
+> [!IMPORTANT]
 > Release 1.0.0 supports Neovim 0.8.0 to 0.11.7
 
 ## Features
