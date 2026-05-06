@@ -1,6 +1,5 @@
 --- Tag jumping utility for HTML files using Tree-sitter.
 -- Allows jumping between matching or indented HTML tags.
-local ts_utils = require("nvim-treesitter.ts_utils")
 
 local config = {
   filetypes = { "html" },
@@ -12,7 +11,7 @@ local M = {}
 --- Retrieves the tag node (start or end) at the current cursor position.
 -- @return TSNode|nil The current tag node under the cursor, or nil if not found.
 local function get_tag()
-  local node = ts_utils.get_node_at_cursor()
+  local node = vim.treesitter.get_node()
 
   while node do
     local node_type = node:type()
@@ -38,8 +37,8 @@ local function get_matching_tag_node(node)
     if child ~= node then
       local child_type = child:type()
       if
-        (node_type == "start_tag" and child_type == "end_tag")
-        or (node_type == "end_tag" and child_type == "start_tag")
+          (node_type == "start_tag" and child_type == "end_tag")
+          or (node_type == "end_tag" and child_type == "start_tag")
       then
         return child
       end
@@ -64,9 +63,12 @@ local function goto_matching(node)
   goto_tag(match)
 end
 
---- Moves the cursor to the next or previous tag node with the same indentation.
--- Useful for navigating structurally similar tags.
--- @param node TSNode The current tag node.
+-- 1. see if we are a start tag
+-- 2. if we are, go to the parent
+-- 3. now that we are a parent, go to the previous sibling
+-- 4. go one layer down to the end tag
+-- 5. do the opposite for the end tag
+
 local function goto_indented(node)
   local node_type = node:type()
   local direction = node_type == "start_tag" and -1 or 1
@@ -77,10 +79,39 @@ local function goto_indented(node)
     return
   end
 
+  local current_node = parent
+  current_node = direction == 1 and current_node:next_sibling()
+      or current_node:prev_sibling()
+
+  vim.notify("current node" .. tostring(current_node), vim.log.levels.INFO)
+
+  local children = current_node:named_children()
+  for i = #children, 1, direction do
+    if (children[i]:type() == "start_tag") or (children[i]:type() == "end_tag") then
+      vim.notify(tostring(children[i]:type()), vim.log.levels.INFO)
+      break
+    end
+  end
+end
+
+--- Moves the cursor to the next or previous tag node with the same indentation.
+-- Useful for navigating structurally similar tags.
+-- @param node TSNode The current tag node.
+local function goto_indented_old(node)
+  local node_type = node:type()
+  local direction = node_type == "start_tag" and -1 or 1
+  local _, start_col = node:start()
+
+  local parent = node:parent()
+  if not parent then
+    return
+  end
+
   local current_node = node
+
   while true do
-    current_node = direction == 1 and ts_utils.get_next_node(current_node, true, true)
-      or ts_utils.get_previous_node(current_node, true, true)
+    current_node = direction == 1 and current_node:next_sibling()
+        or current_node:prev_sibling()
 
     if not current_node then
       break
@@ -105,6 +136,10 @@ function M.jump_tag(dir)
   if not vim.tbl_contains(config.filetypes, ft) then
     return
   end
+
+  local bufnr = vim.api.nvim_get_current_buf()
+  local parser = vim.treesitter.get_parser(bufnr)
+  parser:parse()
 
   local node = get_tag()
   if node ~= nil then
