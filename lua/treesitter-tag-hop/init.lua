@@ -65,19 +65,16 @@ local function goto_tag(tag_node)
   vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
 end
 
---- Jumps the cursor to the matching tag node (start or end).
--- @param node TSNode The current tag node.
-local function goto_matching(node)
-  local match = get_matching_tag_node(node)
-  goto_tag(match)
-end
-
 --- Moves the cursor to the next or previous tag node with the same indentation.
 -- Useful for navigating structurally similar tags.
 -- @param node TSNode The current tag node.
-local function goto_indented(node)
+-- @param flipped boolean to change direction of hopping, optional.
+local function goto_indented(node, flipped)
   local node_type = node:type()
   local direction = node_type == "start_tag" and -1 or 1
+  if flipped then
+    direction = node_type == "start_tag" and 1 or -1
+  end
 
   local parent = node:parent()
   if not parent then
@@ -100,6 +97,33 @@ local function goto_indented(node)
   end
 
   vim.api.nvim_win_set_cursor(0, { child_row + 1, child_col })
+end
+
+
+--- Jumps the cursor to the matching tag node (start or end).
+-- @param node TSNode The current tag node.
+local function goto_matching(node)
+  local match = get_matching_tag_node(node)
+
+  if not match then
+    goto_indented(node)
+    return
+  end
+
+  local node_row = node:start()
+  local match_row = match:start()
+
+  if (match_row - node_row <= 2) and (match_row - node_row >= 0) then
+    goto_indented(node, true)
+    return
+  end
+
+  if (node_row - match_row <= 2) and (node_row - match_row >= 0) then
+    goto_indented(node, true)
+    return
+  end
+
+  goto_tag(match)
 end
 
 --- Jumps the cursor to a matching or indented tag based on direction.
