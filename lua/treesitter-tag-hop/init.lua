@@ -113,12 +113,12 @@ local function goto_matching(node)
   local node_row = node:start()
   local match_row = match:start()
 
-  if (match_row - node_row <= 2) and (match_row - node_row >= 0) then
+  if (match_row - node_row <= 1) and (match_row - node_row >= 0) then
     goto_indented(node, true)
     return
   end
 
-  if (node_row - match_row <= 2) and (node_row - match_row >= 0) then
+  if (node_row - match_row <= 1) and (node_row - match_row >= 0) then
     goto_indented(node, true)
     return
   end
