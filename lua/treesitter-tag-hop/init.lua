@@ -53,6 +53,15 @@ local function goto_tag(tag_node)
     return
   end
   local start_row, start_col = tag_node:start()
+
+  for i = 0, tag_node:child_count() - 1 do
+    local node_tag_name = tag_node:child(i)
+    if node_tag_name:type() == "tag_name" then
+      start_row, start_col = node_tag_name:start()
+      break
+    end
+  end
+
   vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
 end
 
@@ -63,70 +72,34 @@ local function goto_matching(node)
   goto_tag(match)
 end
 
--- 1. see if we are a start tag
--- 2. if we are, go to the parent
--- 3. now that we are a parent, go to the previous sibling
--- 4. go one layer down to the end tag
--- 5. do the opposite for the end tag
-
-local function goto_indented(node)
-  local node_type = node:type()
-  local direction = node_type == "start_tag" and -1 or 1
-  local _, start_col = node:start()
-
-  local parent = node:parent()
-  if not parent then
-    return
-  end
-
-  local current_node = parent
-  current_node = direction == 1 and current_node:next_sibling()
-      or current_node:prev_sibling()
-
-  vim.notify("current node" .. tostring(current_node), vim.log.levels.INFO)
-
-  local children = current_node:named_children()
-  for i = #children, 1, direction do
-    if (children[i]:type() == "start_tag") or (children[i]:type() == "end_tag") then
-      vim.notify(tostring(children[i]:type()), vim.log.levels.INFO)
-      break
-    end
-  end
-end
-
 --- Moves the cursor to the next or previous tag node with the same indentation.
 -- Useful for navigating structurally similar tags.
 -- @param node TSNode The current tag node.
-local function goto_indented_old(node)
+local function goto_indented(node)
   local node_type = node:type()
   local direction = node_type == "start_tag" and -1 or 1
-  local _, start_col = node:start()
 
   local parent = node:parent()
   if not parent then
     return
   end
 
-  local current_node = node
+  local sibling = direction == 1 and parent:next_sibling()
+      or parent:prev_sibling()
 
-  while true do
-    current_node = direction == 1 and current_node:next_sibling()
-        or current_node:prev_sibling()
+  local count = sibling:child_count()
+  local child = direction == 1 and sibling:child(0) or sibling:child(count - 1)
+  local child_row, child_col = child:start()
 
-    if not current_node then
-      break
-    end
-
-    local current_node_type = current_node:type()
-    local _, col = current_node:start()
-    if current_node_type == "start_tag" or current_node_type == "end_tag" then
-      if col == start_col then
-        goto_tag(current_node)
-        break
-      end
+  for i = 0, child:child_count() - 1 do
+    local child_tag_name = child:child(i)
+    if child_tag_name:type() == "tag_name" then
+      child_row, child_col = child_tag_name:start()
       break
     end
   end
+
+  vim.api.nvim_win_set_cursor(0, { child_row + 1, child_col })
 end
 
 --- Jumps the cursor to a matching or indented tag based on direction.
