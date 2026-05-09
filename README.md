@@ -80,10 +80,10 @@ vim.keymap.set({ "n", "v" }, "[t", function() require("treesitter-tag-hop").jump
 
 ```lua
 require("treesitter-tag-hop").setup({
-  filetypes = { "html" }, -- List of filetypes to enable plugin.
+  filetypes = { "html" }, -- List of filetypes to enable plugin
   skip_matching = 1,      -- If the matching tag is 1 row away or less, skip to
-                          -- the next element instead. Set to 0 to disable.
-  show_messages = false,  -- Show debug messages via vim.notify.
+                          -- the next element instead. Set to 0 to disable
+  show_messages = false,  -- Show debug messages via vim.notify
 })
 ```
 
