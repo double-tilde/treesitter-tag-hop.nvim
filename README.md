@@ -9,9 +9,12 @@ A lightweight Neovim plugin that lets you jump between matching HTML tags or nav
 
 - Jump between matching HTML tags (`<div> ⇄ </div>`)
 - Navigate up and down tags at the same indentation level
+- Skip smaller jumps for faster navigation
 - Powered by nvim-treesitter
 
 ## Installation
+
+Go to the [default configuration](#default-configuration) below to see the defaults and descriptions
 
 ### lazy.nvim
 
@@ -20,8 +23,9 @@ A lightweight Neovim plugin that lets you jump between matching HTML tags or nav
   "double-tilde/treesitter-tag-hop.nvim",
   config = function()
     require("treesitter-tag-hop").setup({
-      filetypes = { "html", "php" }, -- customize supported filetypes
-      show_messages = false, -- toggle debug messages
+      filetypes = { "html", "php", "htmlhugo" },
+      skip_matching = 2,
+      show_messages = false,
     })
   end
 }
@@ -35,7 +39,8 @@ use({
   config = function()
     require("treesitter-tag-hop").setup({
       filetypes = { "html", "php" },
-      show_messages = false,
+      skip_matching = 1,
+      show_messages = true,
     })
   end
 })
@@ -75,15 +80,17 @@ vim.keymap.set({ "n", "v" }, "[t", function() require("treesitter-tag-hop").jump
 
 ```lua
 require("treesitter-tag-hop").setup({
-  filetypes = { "html" },  -- List of filetypes to enable plugin
-  show_messages = false,   -- Show debug messages via vim.notify
+  filetypes = { "html" }, -- List of filetypes to enable plugin.
+  skip_matching = 1,      -- If the matching tag is 1 row away or less, skip to
+                          -- the next element instead. Set to 0 to disable.
+  show_messages = false,  -- Show debug messages via vim.notify.
 })
 ```
 
 #### Requirements
 
-- Neovim 0.12+ (it may still work with older versions but this is untested)
-- nvim-treesitter properly installed and configured
+- Neovim 0.12+ (tag-hop may still work with older versions but this is untested)
+- nvim-treesitter properly installed and configured (the latest version of treesitter requires `treesitter-cli` to be installed, see nvim-treesitter docs)
 - Tree-sitter parser for html installed (:TSInstall html)
 
 #### License

@@ -3,6 +3,7 @@
 
 local config = {
   filetypes = { "html" },
+  skip_matching = 1,
   show_messages = false,
 }
 
@@ -110,17 +111,19 @@ local function goto_matching(node)
     return
   end
 
-  local node_row = node:start()
-  local match_row = match:start()
+  local start_row = node:start()
+  local end_row = match:start()
 
-  if (match_row - node_row <= 1) and (match_row - node_row >= 0) then
-    goto_indented(node, true)
-    return
+  if start_row > end_row then
+    start_row = match:start()
+    end_row = node:start()
   end
 
-  if (node_row - match_row <= 1) and (node_row - match_row >= 0) then
-    goto_indented(node, true)
-    return
+  if (config.skip_matching > 0) then
+    if (end_row - start_row <= config.skip_matching) then
+      goto_indented(node, true)
+      return
+    end
   end
 
   goto_tag(match)
